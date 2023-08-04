@@ -35,7 +35,7 @@ app.config['WTF_CSRF_ENABLED'] = False
 
 
 class UserViewTestCase(TestCase):
-    """Test views for messages."""
+    """Test views for users."""
 
     def setUp(self):
         """Create test client, add sample data."""
@@ -65,6 +65,7 @@ class UserViewTestCase(TestCase):
     
     def test_users_view(self):
         """Test  view full list of users"""
+        
         with self.client as c:
             resp = c.get("/users")
             self.assertEqual(resp.status_code, 200)
@@ -139,9 +140,9 @@ class UserViewTestCase(TestCase):
             self.assertIn(self.testuser.username, html)
             # messages, following, followers, likes count accordingly
             self.assertIn(f'<a href="/users/{self.testuser.id}">2</a>', html)
-            self.assertIn(f'<a href="/users/{self.testuser.id}/following">2</a>', html)
-            self.assertIn(f'<a href="/users/{self.testuser.id}/followers">1</a>', html)
-            self.assertIn(f'<a href="/users/{self.testuser.id}/likes">1</a>', html)
+            self.assertIn(f'<a href="/users/{self.testuser.id}/following">{len(self.testuser.following)}</a>', html)
+            self.assertIn(f'<a href="/users/{self.testuser.id}/followers">{len(self.testuser.followers)}</a>', html)
+            self.assertIn(f'<a href="/users/{self.testuser.id}/likes">{len(self.testuser.likes)}</a>', html)
     
     def test_show_following(self):
         """Testing user's list of following user view"""
@@ -204,14 +205,13 @@ class UserViewTestCase(TestCase):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
-                
             resp = c.post(f"/users/follow/{self.u4.id}", follow_redirects=True)
             # import pdb
             # pdb.set_trace()
            
             self.assertEqual(resp.status_code, 200)
-            new_following = Follows.query.filter(Follows.user_following_id  == self.testuser.id).all()
-            self.assertEqual(len(new_following), 3)
+            new_following = Follows.query.filter(Follows.user_following_id  == self.testuser.id, Follows.user_being_followed_id == self.u4.id).all()
+            self.assertEqual(new_following[0].user_being_followed_id, self.u4.id)
     
     def test_follow_user_unauthenticated(self):
         """Testing user's list of following user view"""

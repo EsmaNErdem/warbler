@@ -41,15 +41,17 @@ class UserModelTestCase(TestCase):
         db.drop_all()
         db.create_all()
 
-        user1 = User(
+        user1 = User.signup(
             email='user1@example.com',
             username='user1',
-            password='password1'
+            password='password1',
+            image_url=None
         )
-        user2 = User(
+        user2 = User.signup(
             email='user2@example.com',
             username='user2',
-            password='password2'
+            password='password2',
+            image_url=None
         )
         # we don't know id number that are being assigned so we cannot query/call them by their id.
         # this is given solution approach
@@ -182,23 +184,6 @@ class UserModelTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             db.session.add(user2)
             db.session.commit()
-
-
-# Login
-# -------------------hashing is not working
-# ERROR: test_valid_login (test_user_model.UserModelTestCase)
-# Tests if the user with correct credential can sign in
-# ----------------------------------------------------------------------
-# Traceback (most recent call last):
-#   File "/home/esma/springboard/projects/warbler/test_user_model.py", line 192, in test_valid_login
-#     u = User.authenticate(self.u1.username, 'password1')
-#   File "/home/esma/springboard/projects/warbler/models.py", line 166, in authenticate
-#     is_auth = bcrypt.check_password_hash(user.password, password)
-#   File "/home/esma/springboard/projects/warbler/venv/lib/python3.10/site-packages/flask_bcrypt.py", line 225, in check_password_hash
-#     return hmac.compare_digest(bcrypt.hashpw(password, pw_hash), pw_hash)
-#   File "/home/esma/springboard/projects/warbler/venv/lib/python3.10/site-packages/bcrypt/__init__.py", line 84, in hashpw
-#     return _bcrypt.hashpass(password, salt)
-# ValueError: Invalid salt
 
     def test_valid_login(self):
         """Tests if the user with correct credential can sign in"""

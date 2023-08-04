@@ -80,7 +80,7 @@ class MessageViewTestCase(TestCase):
             resp = c.post("/messages/new", data={"text": "Hellouuuuuuuuu"}, follow_redirects=True )
             
             self.assertEqual(resp.status_code, 200)
-            self.assertIn('Access unauthorized', str(resp.data))    
+            self     .assertIn('Access unauthorized', str(resp.data))    
         
     def test_delete_message(self):
         """Can user delete their message?"""
@@ -95,6 +95,9 @@ class MessageViewTestCase(TestCase):
         with self.client as c:
             with c.session_transaction() as sess:
                 sess[CURR_USER_KEY] = self.testuser.id
+
+            m = Message.query.get(msg.id)
+            self.assertEqual(m, msg)
 
             resp = c.post(f"/messages/{msg.id}/delete",  follow_redirects=True)
             self.assertEqual(resp.status_code, 200)
@@ -112,6 +115,9 @@ class MessageViewTestCase(TestCase):
         db.session.commit()
         with self.client as c:
             resp = c.post(f"/messages/{msg.id}/delete", follow_redirects=True )
+            
+            m = Message.query.get(msg.id)
+            self.assertEqual(m, msg)
             
             self.assertEqual(resp.status_code, 200)
             self.assertIn('Access unauthorized', str(resp.data))    
